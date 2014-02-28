@@ -1,5 +1,7 @@
 class Todo < ActiveRecord::Base
-  attr_accessible :title, :body, :list_name, :todo_count, :status
+  attr_accessible :title, :body, :list_name, :status
+
+  before_save :update_todo_list_count 
 
   @@LOOKUP = { :incomplete => 0,
              :complete => 1,
@@ -26,6 +28,13 @@ class Todo < ActiveRecord::Base
 
     define_singleton_method("create_by_#{key}") do
       self.create(status: value)
+    end
+  end
+
+  def update_todo_list_count
+    todos = Todo.where :list_name => list_name
+    todos.each do |todo|
+      todo.todo_count = todos.count
     end
   end
 

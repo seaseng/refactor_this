@@ -1,9 +1,8 @@
 class TodosController < ApplicationController
-  before_save :update_todo_list_count
 
   def index
     @todos = Todo.all
-    @todo_lists = @todos.pluck(:list_name).uniq 
+    @todo_lists = Todo.pluck(:list_name).uniq 
     # @todo_lists = Todo.all.map(&:list_name).uniq
 
   end
@@ -18,9 +17,8 @@ class TodosController < ApplicationController
 
   def create
     list_name = params[:todo].delete(:list_name)
-    list_name = slugify_list(list_name)
     @todo = Todo.new params[:todo]
-    @todo.list_name = list_name
+    @todo.list_name = slugify_list(list_name)
     if @todo.save
       redirect_to root_url
     else
@@ -34,10 +32,8 @@ class TodosController < ApplicationController
 
   def update
     @todo = Todo.find params[:id]
-    list_name = params[:todo].delete(:list_name)
-    list_name = slugify_list(list_name)
-    @todo.list_name = list_name
-    if @todo.save
+    @todo.list_name = slugify_list(params[:todo].delete(:list_name))
+    if @todo.update_attributes params[:todo]
       redirect_to @todo
     else
       render :edit
@@ -46,14 +42,6 @@ class TodosController < ApplicationController
 
   private
 
-  def update_todo_list_count
-    todos = Todo.where :list_name => list_name
-    todos.each do |todo|
-      todo.update_attributes :todo_count => todos.count
-      todo.save
-    end
-  end
-    
   def slugify_list(list_name)
     list_name.downcase.gsub ' ', '-'
   end
