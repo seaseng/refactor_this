@@ -21,6 +21,10 @@ group :assets do
 end
 
 group :development do
+  gem 'pry'
+  gem 'pry-debugger'
+  # gem 'pry-rails'
+  gem 'awesome_print'
   gem 'debugger'
 end
 
